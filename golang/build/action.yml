@@ -1,12 +1,14 @@
 name: build
 inputs:
   module: 
-     description: "service port"
+     description: "module"
      required: true
   service_port: 
      description: "service port"
      required: true
-
+  namespace: 
+     description: "namespace"
+     required: true
 runs:
   using: 'composite'
   steps:
@@ -47,6 +49,7 @@ runs:
         APP_IMAGE: ${{ github.event.repository.name }}
         APP_NAME: ${{ github.event.repository.name }}
         SERVICEPORT: ${{ inputs.service_port }}
+        NAMESPACE: ${{ inputs.namespace }}
 
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
