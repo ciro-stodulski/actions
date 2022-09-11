@@ -28,7 +28,7 @@ runs:
       uses: actions/upload-artifact@v3
       with:
         name: app
-        path: ${{ inputs.module }}
+        path: dist
 
     - name: Set outputs
       id: vars
