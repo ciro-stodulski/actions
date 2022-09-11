@@ -23,7 +23,7 @@ runs:
       run: |
         go get ./...  
         go build
-        mv ${{ input.app_name }} dist
+        mv ${{ inputs.app_name }} dist
 
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
