@@ -1,31 +1,43 @@
 name: deploy
-
 inputs:
-  docker_username: 
-     description: "docker username"
+  token: 
+     description: "token"
      required: true
-  docker_password: 
-     description: "docker password"
+  cluster: 
+     description: "cluster"
+     required: true
+  namespace: 
+     description: "namespace"
+     required: true
+  branch: 
+     description: "namespace"
      required: true
 
 runs:
   using: 'composite'
   steps:
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+    - name: Checkout private tools
+      uses: actions/checkout@v3
       with:
-        node-version: ${{ matrix.node-version }}
-
-    - uses: actions/checkout@v2
+        repository: ciro-stodulski/flux
+        token: ${{ inputs.token }} # `GH_PAT` is a secret that contains your PAT
+    
     - name: Download artifact
       uses: actions/download-artifact@v3
       with:
-        name: app
-        path: dist
-
-    - name: Push docker image
+        name: deployments
+        path: scripts/kubernetes
+  
+    - name: Install and commit flux
       shell: bash
       run: |
-        docker login -u ${{inputs.docker_username}} -p ${{inputs.docker_password}}
-        docker build . --file Dockerfile --tag ${{inputs.docker_username}}/${{ github.event.repository.name }}:$(git rev-parse --short "$GITHUB_SHA")
-        docker push ${{inputs.docker_username}}/${{ github.event.repository.name }}:$(git rev-parse --short "$GITHUB_SHA")
+          git config --global user.name ciro-stodulski
+          git config --global user.email ciro-stodulski@github.com
+          mkdir -p ${{ inputs.cluster }}/ ${{ inputs.namespace }}
+          mkdir -p ${{ inputs.cluster }}/${{ inputs.namespace }}/${{ github.event.repository.name }}
+          cp -r scripts/kubernetes/*.yaml  ${{ inputs.cluster }}/lab/${{ github.event.repository.name }}
+          rm -rf scripts
+          git add .
+          git status
+          git commit -m "$(git rev-parse --short "$GITHUB_SHA")"
+          git push origin ${{ inputs.branch }}
