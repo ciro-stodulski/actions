@@ -32,7 +32,7 @@ runs:
         echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
         echo "::set-output name=docker_repo::cirosda"
 
-    - name: Install and build
+    - name: Builder deployments
       shell: bash
       run: |
         cd scripts/kubernetes
